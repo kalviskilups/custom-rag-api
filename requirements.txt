@@ -1,0 +1,8 @@
+os
+time
+torch
+transformers
+accelerate
+langchain
+langchain_community
+langchain_huggingface
