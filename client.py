@@ -1,7 +1,12 @@
 import requests
 
-def main():
-    query = input("Please enter your query: ")
+def ask_question():
+    query = input("Please enter your query (or type 'q' to quit): ")
+    
+    if query.lower() == 'q':
+        print("Exiting the program...")
+        return False
+
     response = requests.post(
         "http://127.0.0.1:2026/query",
         json={"query": query}
@@ -17,6 +22,13 @@ def main():
         print(data.get("answer", "No answer found"))
     else:
         print("Error:", response.json().get("error"))
+    
+    return True 
+
+def main():
+    keep_asking = True
+    while keep_asking:
+        keep_asking = ask_question()
 
 if __name__ == '__main__':
     main()
