@@ -111,7 +111,7 @@ if __name__ == "__main__":
         )
 
     # Load PDF document
-    loader = PyPDFLoader("NVIDIAAn.pdf")
+    loader = PyPDFLoader("data/NVIDIAAn.pdf")
     documents = loader.load()
 
     # Create embeddings
