@@ -1,0 +1,10 @@
+{
+    "prompt_template": "You are an assistant for question-answering tasks. Use the following context related to a company named NVIDIA to answer the question. \nIf you don't know the answer, just say that you don't know. Keep the answer concise and don't expand if the question is not related to the context.\nDo not include anything but the answer in the response.\n\nQuestion: {question}\nContext: {context}\nAnswer:",
+    "model": "meta-llama/Meta-Llama-3-8B-Instruct",
+    "data": "data/NVIDIAAn.pdf",
+    "endpoint": "/query",
+    "port": 2026,
+    "base_url": "http://127.0.0.1:2026",
+    "embedding_model": "sentence-transformers/all-mpnet-base-v2"
+}
+  
