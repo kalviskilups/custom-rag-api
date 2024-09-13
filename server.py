@@ -9,6 +9,7 @@ from utils import (
     load_model_tokenizer_pipeline,
     load_documents_and_split,
     custom_retriever,
+    load_config,
 )
 
 app = Flask(__name__)
@@ -46,7 +47,7 @@ def handle_query():
                 {
                     "source": idx + 1,
                     "page": doc.metadata["page"],
-                    "score": 1 - doc.metadata["score"],
+                    "score": round(1 - doc.metadata["score"], 2),
                     "content": doc.page_content.replace("\n", " ")[:100] + "...",
                 }
                 for idx, doc in enumerate(results)
@@ -55,36 +56,43 @@ def handle_query():
     )
 
 
+@app.route("/health", methods=["GET"])
+def health_check():
+    """
+    Health check endpoint to verify that the server is running.
+    :return: A JSON response indicating the server status.
+    """
+
+    return jsonify({"status": "ok"}), 200
+
+
 if __name__ == "__main__":
 
     # Load the HF_API_TOKEN from .env file
     load_dotenv()
+    config = load_config(config_path="config.json")
 
     # Safety check for the API token
     HF_TOKEN = os.getenv("HF_API_TOKEN")
-    handle_missing_env_vars(HF_TOKEN, "HF_API_TOKEN")
+    handle_missing_env_vars(variable=HF_TOKEN, name="HF_API_TOKEN")
 
     # Load the model, tokenizer, and the pipeline
     tokenizer, model, query_pipeline = load_model_tokenizer_pipeline(
-        model="meta-llama/Meta-Llama-3-8B-Instruct", token=HF_TOKEN
+        model=config.get("model", ""), token=HF_TOKEN
     )
 
     # Load PDF document and split it into smaller chunks and load into vector store
-    vectordb = load_documents_and_split("data/NVIDIAAn.pdf", chunk_size=1000)
+    vectordb = load_documents_and_split(
+        pdf_path=config.get("data", ""),
+        embedding_model=config.get("embedding_model", ""),
+        chunk_size=1000,
+    )
 
     # Define the custom prompt template
     prompt = custom_prompt_processing(
-        template_str="""
-        You are an assistant for question-answering tasks. Use the following context related to a company named NVIDIA to answer the question. 
-        If you don't know the answer, just say that you don't know. Keep the answer concise and don't expand if the question is not related to the context.
-        Do not include anything but the answer in the response.
-
-        Question: {question}
-        Context: {context}
-        Answer:
-        """
+        template_str=config.get("prompt_template", ""),
     )
 
     llm = HuggingFacePipeline(pipeline=query_pipeline)
 
-    app.run(debug=True, port=2026)
+    app.run(debug=False, port=config.get("port", 0))

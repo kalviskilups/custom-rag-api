@@ -1,8 +1,14 @@
 os
+sys
 time
 torch
 flask
+json
 typing
+subprocess
+pytest
+requests
+regex
 python-dotenv
 transformers
 accelerate

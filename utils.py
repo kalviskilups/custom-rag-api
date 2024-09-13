@@ -1,5 +1,8 @@
 import re
 import torch
+import json
+import time
+import requests
 import transformers
 from typing import List, Tuple
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -43,13 +46,19 @@ def extract_answer(response_text: str) -> str:
     :return: A string containing the cleaned answer. If no answer is found, returns "No answer found."
     """
 
+    pattern = re.compile(r"\b[A-Z][A-Za-z\s]+:\b")
+
     parts = response_text.split("Answer:")
     if len(parts) > 1:
         output = parts[1].strip()
-        cleaned_response = re.split(
-            r"(Question:|Context:|You are an assistant|AI:|Robot:|Human:)", output
-        )[0].strip()
-        return f"\n\nAnswer: {cleaned_response}\n\n"
+        sections = pattern.split(output)
+        cleaned_response = sections[0].strip()
+        return (
+            f"\n\nAnswer: {cleaned_response}\n\n"
+            if cleaned_response
+            else "No answer found."
+        )
+
     return "No answer found."
 
 
@@ -109,7 +118,9 @@ def load_model_tokenizer_pipeline(model: str, token: str) -> Tuple[
     return tokenizer, model, query_pipeline
 
 
-def load_documents_and_split(pdf_path: str, chunk_size: int = 1000) -> List[Document]:
+def load_documents_and_split(
+    pdf_path: str, embedding_model: str, chunk_size: int = 1000
+) -> List[Document]:
     """
     Load a PDF document, split it into chunks, and return the vector store.
 
@@ -126,7 +137,7 @@ def load_documents_and_split(pdf_path: str, chunk_size: int = 1000) -> List[Docu
     )
 
     embeddings = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-mpnet-base-v2",
+        model_name=embedding_model,
         model_kwargs={"device": "cuda"},
     )
 
@@ -149,7 +160,41 @@ def custom_retriever(query: str, vectordb) -> List[Document]:
     docs, scores = zip(*vectordb.similarity_search_with_score(query, k=20))
 
     for doc, score in zip(docs, scores):
-        doc.metadata["score"] = round(score, 2)
+        doc.metadata["score"] = score
 
     filtered_results = [doc for doc in docs if (1 - doc.metadata["score"]) >= 0.4]
     return list(filtered_results)
+
+
+def wait_for_server_ready(url: str, timeout: int = 30) -> bool:
+    """
+    Checks if the server is ready. Returns True if the server responds with status 200
+    within the timeout period; otherwise, returns False.
+
+    :param url: URL to check.
+    :param timeout: Time to wait in seconds. Default is 30.
+    :return: True if server is ready, False otherwise.
+    """
+
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        try:
+            response = requests.get(url)
+            if response.status_code == 200:
+                return True
+        except requests.ConnectionError:
+            pass
+        time.sleep(1)
+    return False
+
+
+def load_config(config_path: str):
+    """
+    Loads and returns configuration settings from the config.json file.
+
+    :param config_path: Path to the JSON file.
+    :return: Configuration as a dictionary.
+    """
+
+    with open(config_path, "r") as file:
+        return json.load(file)

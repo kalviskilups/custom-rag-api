@@ -1,7 +1,5 @@
 import requests
 
-# Seit vajag noformet un server.py ari. kaut ka uztaisit profesionalak kodu un pamainit hiperparametrus. Also uzrakstit README.md.
-
 
 def ask_question() -> bool:
     """

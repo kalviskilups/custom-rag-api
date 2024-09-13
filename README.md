@@ -12,6 +12,11 @@ This repository contains a custom RAG API implementation using the Llama 3.1 8B 
 
 3. Place a .pdf file in the `data` folder.
 
-3. Start the `server.py`, which will download and initialize the model.
+3. Run `python3 server.py`, which will download and initialize the model.
 
-4. Run `client.py` to interact with the model.
+4. Run `python3 client.py` to interact with the model.
+
+
+## Tests
+
+Run tests by running `python3 pytest` in the root directory.
