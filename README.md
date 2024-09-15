@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository contains a custom RAG API implementation using the Llama 3.1 8B Instruct model ([see here](https://huggingface.co/meta-llama/Meta-Llama-3.1-8B-Instruct)), this model was chosen mainly because it is fine-tuned on human instructions. If you lack the VRAM for a model of this size, llama.cpp ([see here](https://github.com/ggerganov/llama.cpp)) might be a better alternative. If you don't want to run the model locally, you can use OpenAI or other models that require credits or subscription. The RAG API is provided with a .pdf file, which gives it the possibility to take information from this file and reduce hallucinations about the questions provided regarding this topic.
+This repository contains a custom RAG API implementation using the Llama 3.1 8B Instruct model ([see here](https://huggingface.co/meta-llama/Meta-Llama-3.1-8B-Instruct)), this model was chosen mainly because it is fine-tuned on human instructions. If you lack the VRAM for a model of this size, llama.cpp ([see here](https://github.com/ggerganov/llama.cpp)) might be a better alternative. If you don't want to run the model locally, you can use OpenAI or other models that require credits or subscriptions. The RAG API is provided with a .pdf file, which allows it to take information from this file and reduce hallucinations about the questions provided regarding this topic.
 
 ## Setup Instructions
 
@@ -19,4 +19,4 @@ This repository contains a custom RAG API implementation using the Llama 3.1 8B 
 
 ## Tests
 
-Run tests by running `python3 pytest` in the root directory.
+Run tests by running `pytest` in the root directory.
